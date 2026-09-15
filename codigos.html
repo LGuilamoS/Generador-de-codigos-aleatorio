@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="ANSI">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Códigos con Login (Opciones de Prefijo)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Librería SheetJS para exportar a Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+
+  <!-- MODAL DE INICIO DE SESIÓN -->
+  <div id="loginModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
+    <div class="bg-white p-6 md:p-8 rounded-xl shadow-xl max-w-sm w-full space-y-4">
+      <div class="text-center">
+        <h2 class="text-2xl font-bold text-gray-800">Iniciar Sesión</h2>
+        <p class="text-xs text-gray-500 mt-1">Ingresa tus credenciales para acceder</p>
+      </div>
+
+      <form onsubmit="validarLogin(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Usuario</label>
+          <input type="text" id="userInput" required class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="admin">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Contraseña</label>
+          <input type="password" id="passInput" required class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="••••••••">
+        </div>
+        <p id="errorMessage" class="text-red-500 text-xs text-center hidden">Usuario o contraseña incorrectos</p>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition duration-200">
+          Entrar
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- APLICACIÓN PRINCIPAL (OCULTA HASTA INICIAR SESIÓN) -->
+  <div id="appContent" class="hidden p-4 md:p-8 max-w-4xl mx-auto space-y-6">
+    
+    <!-- Encabezado con información del usuario -->
+    <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+      <div>
+        <h1 class="text-xl md:text-2xl font-bold text-gray-800">Generador de Códigos</h1>
+        <p class="text-xs text-gray-500">Bienvenido, <span id="nombreUsuario" class="font-semibold text-blue-600"></span></p>
+      </div>
+      <button onclick="cerrarSesion()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg border border-red-200 transition">
+        Cerrar Sesión
+      </button>
+    </div>
+
+    <!-- PANEL DE CONFIGURACIÓN Y RESULTADOS -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Controles -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 lg:col-span-1 space-y-4">
+        <h2 class="text-lg font-semibold text-gray-700 border-b pb-2">Configuración</h2>
+
+        <!-- Opción Con / Sin Prefijo -->
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Modo de Generación</label>
+          <select id="modoGeneracion" onchange="togglePrefijoInput()" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none font-semibold">
+            <option value="sin_prefijo">Sin Prefijo (Solo Números Aleatorios)</option>
+            <option value="con_prefijo">Con Prefijo Personalizado</option>
+          </select>
+        </div>
+
+        <!-- Opciones de Prefijo (Ocultas dinámicamente) -->
+        <div id="contenedorPrefijo" class="hidden space-y-3 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Tipo de Prefijo</label>
+            <select id="tipoPrefijo" onchange="validarEntradaPrefijo()" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+              <option value="alfanumerico">Alfanumérico (Letras y Números)</option>
+              <option value="numerico">Numérico (Solo Números)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Valor del Prefijo</label>
+            <input type="text" id="prefijoTexto" oninput="validarEntradaPrefijo()" placeholder="Ej: PRF123 o 990" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white uppercase">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Inicio de Secuencia (Número)</label>
+          <input type="number" id="secuenciaInicio" value="1" min="0" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Relleno de Secuencia (Dígitos)</label>
+          <select id="paddingSecuencia" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <option value="1">Sin ceros (1, 2...)</option>
+            <option value="4" selected>4 dígitos (0001...)</option>
+            <option value="6">6 dígitos (000001...)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Separador de Secuencia</label>
+          <input type="text" id="separador" value="-" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Dígitos Aleatorios (Solo Números)</label>
+          <input type="number" id="longitudAleatoria" value="6" min="2" max="32" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Cantidad a Generar</label>
+          <input type="number" id="cantidad" value="0" min="0" max="5000" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ingresa una cantidad...">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Posición de la Secuencia</label>
+          <select id="posicionSecuencia" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <option value="al_final">Al Final (PREFIJO+ALEATORIO - SECUENCIA)</option>
+            <option value="al_inicio">Al Inicio (SECUENCIA - PREFIJO+ALEATORIO)</option>
+          </select>
+        </div>
+
+        <button onclick="generarCodigos()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition duration-200">
+          Generar Códigos
+        </button>
+      </div>
+
+      <!-- Resultados -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 lg:col-span-2 flex flex-col">
+        <div class="flex justify-between items-center border-b pb-2 mb-4">
+          <h2 class="text-lg font-semibold text-gray-700">Resultados (<span id="contadorResultados">0</span>)</h2>
+          <div class="flex space-x-2">
+            <button onclick="copiarAlPortapapeles()" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded border">
+              Copiar
+            </button>
+            <button onclick="descargarTXT()" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded border">
+              TXT
+            </button>
+            <button onclick="descargarExcel()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded transition">
+              Descargar Excel
+            </button>
+          </div>
+        </div>
+
+        <textarea id="resultado" readonly class="w-full flex-grow p-3 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm resize-none min-h-[300px]" placeholder="Introduce la cantidad de códigos deseada y haz clic en 'Generar Códigos'..."></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const USUARIOS_PERMITIDOS = {
+      'CopelSP': 'P@ssw0rdss','admin': '123456',
+      'usuario1': 'clave2026'
+    };
+
+    let codigosGeneradosMatriz = [];
+    let metaDescarga = { inicial: '0000', final: '0000' };
+
+    window.onload = function() {
+      const usuarioActivo = sessionStorage.getItem('usuarioSesion');
+      if (usuarioActivo) {
+        mostrarApp(usuarioActivo);
+      }
+    };
+
+    function validarLogin(event) {
+      event.preventDefault();
+      const user = document.getElementById('userInput').value;
+      const pass = document.getElementById('passInput').value;
+      const errorMsg = document.getElementById('errorMessage');
+
+      if (USUARIOS_PERMITIDOS[user] && USUARIOS_PERMITIDOS[user] === pass) {
+        sessionStorage.setItem('usuarioSesion', user);
+        errorMsg.classList.add('hidden');
+        mostrarApp(user);
+      } else {
+        errorMsg.classList.remove('hidden');
+      }
+    }
+
+    function mostrarApp(usuario) {
+      document.getElementById('loginModal').classList.add('hidden');
+      document.getElementById('appContent').classList.remove('hidden');
+      document.getElementById('nombreUsuario').textContent = usuario;
+      togglePrefijoInput();
+    }
+
+    function cerrarSesion() {
+      sessionStorage.removeItem('usuarioSesion');
+      location.reload();
+    }
+
+    function togglePrefijoInput() {
+      const modo = document.getElementById('modoGeneracion').value;
+      const contenedorPrefijo = document.getElementById('contenedorPrefijo');
+      if (modo === 'con_prefijo') {
+        contenedorPrefijo.classList.remove('hidden');
+      } else {
+        contenedorPrefijo.classList.add('hidden');
+      }
+    }
+
+    function validarEntradaPrefijo() {
+      const tipoPrefijo = document.getElementById('tipoPrefijo').value;
+      const prefijoInput = document.getElementById('prefijoTexto');
+
+      if (tipoPrefijo === 'numerico') {
+        prefijoInput.value = prefijoInput.value.replace(/[^0-9]/g, '');
+      }
+    }
+
+    function obtenerFechaFormateada() {
+      const hoy = new Date();
+      const yyyy = hoy.getFullYear();
+      const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+      const dd = String(hoy.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function generarCodigos() {
+      const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
+
+      // Validación para evitar generación sin datos
+      if (cantidad <= 0) {
+        alert('Por favor, ingresa una cantidad mayor a 0 para generar los códigos.');
+        document.getElementById('resultado').value = '';
+        document.getElementById('contadorResultados').textContent = '0';
+        codigosGeneradosMatriz = [];
+        return;
+      }
+
+      const modo = document.getElementById('modoGeneracion').value;
+      const tipoPrefijo = document.getElementById('tipoPrefijo').value;
+      let prefijoTexto = document.getElementById('prefijoTexto').value.trim();
+
+      if (modo === 'con_prefijo' && tipoPrefijo === 'numerico') {
+        prefijoTexto = prefijoTexto.replace(/[^0-9]/g, '');
+      }
+
+      const inicio = parseInt(document.getElementById('secuenciaInicio').value) || 1;
+      const padding = parseInt(document.getElementById('paddingSecuencia').value) || 1;
+      const separador = document.getElementById('separador').value;
+      const longitud = parseInt(document.getElementById('longitudAleatoria').value) || 6;
+      const posicion = document.getElementById('posicionSecuencia').value;
+
+      const caracteres = '0123456789';
+      const resultados = [];
+      codigosGeneradosMatriz = [];
+
+      const secuenciaInicialFormateada = inicio.toString().padStart(padding, '0');
+      const secuenciaFinalFormateada = (inicio + cantidad - 1).toString().padStart(padding, '0');
+      metaDescarga = { inicial: secuenciaInicialFormateada, final: secuenciaFinalFormateada };
+
+      for (let i = 0; i < cantidad; i++) {
+        let parteAleatoria = '';
+        for (let j = 0; j < longitud; j++) {
+          parteAleatoria += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+        }
+
+        let bloqueConPrefijo = parteAleatoria;
+        if (modo === 'con_prefijo' && prefijoTexto !== '') {
+          bloqueConPrefijo = `${prefijoTexto}${parteAleatoria}`;
+        }
+
+        const numeroSecuencia = (inicio + i).toString().padStart(padding, '0');
+
+        let codigoFinal = '';
+        if (posicion === 'al_final') {
+          codigoFinal = `${bloqueConPrefijo}${separador}${numeroSecuencia}`;
+        } else {
+          codigoFinal = `${numeroSecuencia}${separador}${bloqueConPrefijo}`;
+        }
+
+        resultados.push(codigoFinal);
+
+        codigosGeneradosMatriz.push({
+          "N°": i + 1,
+          "Código Completo": codigoFinal,
+          "Secuencia": numeroSecuencia,
+          "Bloque Aleatorio": bloqueConPrefijo,
+          "Dígitos Aleatorios": parteAleatoria,
+          "Tipo Prefijo": modo === 'con_prefijo' ? tipoPrefijo.toUpperCase() : 'N/A',
+          "Prefijo": (modo === 'con_prefijo' && prefijoTexto !== '') ? prefijoTexto : 'N/A'
+        });
+      }
+
+      document.getElementById('resultado').value = resultados.join('\n');
+      document.getElementById('contadorResultados').textContent = resultados.length;
+    }
+
+    function copiarAlPortapapeles() {
+      const resultadoText = document.getElementById('resultado');
+      if (!resultadoText.value) return;
+      resultadoText.select();
+      navigator.clipboard.writeText(resultadoText.value);
+      alert('¡Códigos copiados!');
+    }
+
+    function descargarTXT() {
+      const contenido = document.getElementById('resultado').value;
+      if (!contenido) return;
+
+      const fecha = obtenerFechaFormateada();
+      const nombreArchivo = `codigos_${metaDescarga.inicial}_a_${metaDescarga.final}_${fecha}.txt`;
+
+      const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = nombreArchivo;
+      link.click();
+    }
+
+    function descargarExcel() {
+      if (codigosGeneradosMatriz.length === 0) return;
+
+      const fecha = obtenerFechaFormateada();
+      const nombreArchivo = `codigos_${metaDescarga.inicial}_a_${metaDescarga.final}_${fecha}.xlsx`;
+
+      const hoja = XLSX.utils.json_to_sheet(codigosGeneradosMatriz);
+      const libro = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(libro, hoja, "Códigos");
+
+      XLSX.writeFile(libro, nombreArchivo);
+    }
+  </script>
+</body>
+</html>
