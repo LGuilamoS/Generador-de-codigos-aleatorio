@@ -24,10 +24,10 @@
           <input type="text" id="userInput" required class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="admin">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Contrase鎙</label>
-          <input type="password" id="passInput" required class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="����">
+          <label class="block text-xs font-medium text-gray-600 mb-1">Contraseña</label>
+          <input type="password" id="passInput" required class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="contraseña">
         </div>
-        <p id="errorMessage" class="text-red-500 text-xs text-center hidden">Usuario o contrase鎙 incorrectos</p>
+        <p id="errorMessage" class="text-red-500 text-xs text-center hidden">Usuario o contraseña incorrectos</p>
         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition duration-200">
           Entrar
         </button>
@@ -41,11 +41,11 @@
     <!-- Encabezado con informaci鏮 del usuario -->
     <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
       <div>
-        <h1 class="text-xl md:text-2xl font-bold text-gray-800">Generador de C鏚igos</h1>
+        <h1 class="text-xl md:text-2xl font-bold text-gray-800">Generador de Códigos</h1>
         <p class="text-xs text-gray-500">Bienvenido, <span id="nombreUsuario" class="font-semibold text-blue-600"></span></p>
       </div>
       <button onclick="cerrarSesion()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg border border-red-200 transition">
-        Cerrar Sesi鏮
+        Cerrar Sesión
       </button>
     </div>
 
@@ -54,13 +54,13 @@
       
       <!-- Controles -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 lg:col-span-1 space-y-4">
-        <h2 class="text-lg font-semibold text-gray-700 border-b pb-2">Configuraci鏮</h2>
+        <h2 class="text-lg font-semibold text-gray-700 border-b pb-2">Configuración</h2>
 
         <!-- Opci鏮 Con / Sin Prefijo -->
         <div>
           <label class="block text-xs font-medium text-gray-600 mb-1">Modo de Generaci鏮</label>
           <select id="modoGeneracion" onchange="togglePrefijoInput()" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none font-semibold">
-            <option value="sin_prefijo">Sin Prefijo (Solo Neros Aleatorios)</option>
+            <option value="sin_prefijo">Sin Prefijo (Solo Numeros Aleatorios)</option>
             <option value="con_prefijo">Con Prefijo Personalizado</option>
           </select>
         </div>
@@ -70,8 +70,8 @@
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">Tipo de Prefijo</label>
             <select id="tipoPrefijo" onchange="validarEntradaPrefijo()" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
-              <option value="alfanumerico">Alfanum廨ico (Letras y Neros)</option>
-              <option value="numerico">Num廨ico (Solo Neros)</option>
+              <option value="alfanumerico">Alfanumerico (Letras y Numeros)</option>
+              <option value="numerico">Numerico (Solo Numeros)</option>
             </select>
           </div>
 
@@ -82,16 +82,16 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Inicio de Secuencia (Nero)</label>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Inicio de Secuencia (Numero)</label>
           <input type="number" id="secuenciaInicio" value="1" min="0" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Relleno de Secuencia (D璲itos)</label>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Relleno de Secuencia (Dígitos)</label>
           <select id="paddingSecuencia" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
             <option value="1">Sin ceros (1, 2...)</option>
-            <option value="4" selected>4 d璲itos (0001...)</option>
-            <option value="6">6 d璲itos (000001...)</option>
+            <option value="4" selected>4 Dígitos (0001...)</option>
+            <option value="6">6 Dígitos (000001...)</option>
           </select>
         </div>
 
@@ -101,7 +101,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">D璲itos Aleatorios (Solo Neros)</label>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Dígitos Aleatorios (Solo Numeros)</label>
           <input type="number" id="longitudAleatoria" value="6" min="2" max="32" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
         </div>
 
@@ -111,7 +111,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Posici鏮 de la Secuencia</label>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Posición de la Secuencia</label>
           <select id="posicionSecuencia" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
             <option value="al_final">Al Final (PREFIJO+ALEATORIO - SECUENCIA)</option>
             <option value="al_inicio">Al Inicio (SECUENCIA - PREFIJO+ALEATORIO)</option>
@@ -119,7 +119,7 @@
         </div>
 
         <button onclick="generarCodigos()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition duration-200">
-          Generar C鏚igos
+          Generar Códigos
         </button>
       </div>
 
@@ -140,7 +140,7 @@
           </div>
         </div>
 
-        <textarea id="resultado" readonly class="w-full flex-grow p-3 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm resize-none min-h-[300px]" placeholder="Introduce la cantidad de c鏚igos deseada y haz clic en 'Generar C鏚igos'..."></textarea>
+        <textarea id="resultado" readonly class="w-full flex-grow p-3 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm resize-none min-h-[300px]" placeholder="Introduce la cantidad de códigos deseada y haz clic en 'Generar Códigos'..."></textarea>
       </div>
 
     </div>
@@ -221,7 +221,7 @@
 
       // Validaci鏮 para evitar generaci鏮 sin datos
       if (cantidad <= 0) {
-        alert('Por favor, ingresa una cantidad mayor a 0 para generar los c鏚igos.');
+        alert('Por favor, ingresa una cantidad mayor a 0 para generar los códigos.');
         document.getElementById('resultado').value = '';
         document.getElementById('contadorResultados').textContent = '0';
         codigosGeneradosMatriz = [];
@@ -292,7 +292,7 @@
       if (!resultadoText.value) return;
       resultadoText.select();
       navigator.clipboard.writeText(resultadoText.value);
-      alert('。鏚igos copiados!');
+      alert('。Códigos copiados!');
     }
 
     function descargarTXT() {
@@ -317,7 +317,7 @@
 
       const hoja = XLSX.utils.json_to_sheet(codigosGeneradosMatriz);
       const libro = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(libro, hoja, "C鏚igos");
+      XLSX.utils.book_append_sheet(libro, hoja, "Códigos");
 
       XLSX.writeFile(libro, nombreArchivo);
     }
