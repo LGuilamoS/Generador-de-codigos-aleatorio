@@ -3,35 +3,63 @@
 <head>
   <meta charset="ANSI">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generador de Códigos con Login (Opciones de Prefijo)</title>
+  <title>Generador de Códigos con Login y Registro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Librería SheetJS para exportar a Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans">
 
-  <!-- MODAL DE INICIO DE SESIÓN -->
+  <!-- MODAL DE INICIO DE SESIÓN / REGISTRO -->
   <div id="loginModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
     <div class="bg-white p-6 md:p-8 rounded-xl shadow-xl max-w-sm w-full space-y-4">
-      <div class="text-center">
-        <h2 class="text-2xl font-bold text-gray-800">Iniciar Sesión</h2>
-        <p class="text-xs text-gray-500 mt-1">Ingresa tus credenciales para acceder</p>
+      
+      <!-- Pestañas para alternar entre Iniciar Sesión y Registrarse -->
+      <div class="flex border-b border-gray-200 pb-2 mb-2">
+        <button onclick="cambiarVistaAuth('login')" id="tabLogin" class="flex-1 text-center pb-2 font-bold text-blue-600 border-b-2 border-blue-600 text-sm">Iniciar Sesión</button>
+        <button onclick="cambiarVistaAuth('register')" id="tabRegister" class="flex-1 text-center pb-2 font-semibold text-gray-400 text-sm">Registrarse</button>
       </div>
 
-      <form onsubmit="validarLogin(event)" class="space-y-3">
+      <!-- FORMULARIO DE LOGIN -->
+      <form id="formLogin" onsubmit="validarLogin(event)" class="space-y-3">
+        <div class="text-center mb-2">
+          <h2 class="text-xl font-bold text-gray-800">Bienvenido de nuevo</h2>
+          <p class="text-xs text-gray-500">Ingresa tus credenciales</p>
+        </div>
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Usuario</label>
-          <input type="text" id="userInput" required class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="admin">
+          <label class="block text-xs font-medium text-gray-600 mb-1">Usuario o Correo</label>
+          <input type="text" id="userInput" required class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Tu usuario">
         </div>
         <div>
           <label class="block text-xs font-medium text-gray-600 mb-1">Contraseña</label>
           <input type="password" id="passInput" required class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="••••••••">
         </div>
-        <p id="errorMessage" class="text-red-500 text-xs text-center hidden">Usuario o contraseña incorrectos</p>
+        <p id="errorLoginMessage" class="text-red-500 text-xs text-center hidden">Usuario o contraseña incorrectos</p>
         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition duration-200">
           Entrar
         </button>
       </form>
+
+      <!-- FORMULARIO DE REGISTRO -->
+      <form id="formRegister" onsubmit="registrarUsuario(event)" class="space-y-3 hidden">
+        <div class="text-center mb-2">
+          <h2 class="text-xl font-bold text-gray-800">Crear una cuenta</h2>
+          <p class="text-xs text-gray-500">Regístrate para usar el generador</p>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Nombre de Usuario</label>
+          <input type="text" id="regUser" required class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ej: mi_usuario">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Contraseña</label>
+          <input type="password" id="regPass" required class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Mínimo 6 caracteres">
+        </div>
+        <p id="errorRegisterMessage" class="text-red-500 text-xs text-center hidden">Error en el registro</p>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-lg transition duration-200">
+          Registrarse
+        </button>
+      </form>
+
     </div>
   </div>
 
@@ -56,7 +84,6 @@
       <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 lg:col-span-1 space-y-4">
         <h2 class="text-lg font-semibold text-gray-700 border-b pb-2">Configuración</h2>
 
-        <!-- Opción Con / Sin Prefijo -->
         <div>
           <label class="block text-xs font-medium text-gray-600 mb-1">Modo de Generación</label>
           <select id="modoGeneracion" onchange="togglePrefijoInput()" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none font-semibold">
@@ -65,7 +92,6 @@
           </select>
         </div>
 
-        <!-- Opciones de Prefijo (Ocultas dinámicamente) -->
         <div id="contenedorPrefijo" class="hidden space-y-3 p-3 bg-blue-50 border border-blue-100 rounded-lg">
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">Tipo de Prefijo</label>
@@ -74,7 +100,6 @@
               <option value="numerico">Numérico (Solo Números)</option>
             </select>
           </div>
-
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">Valor del Prefijo</label>
             <input type="text" id="prefijoTexto" oninput="validarEntradaPrefijo()" placeholder="Ej: PRF123 o 990" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white uppercase">
@@ -147,10 +172,8 @@
   </div>
 
   <script>
-    const USUARIOS_PERMITIDOS = {
-      'CopelSP': 'P@ssw0rdss','admin': '123456',
-      'usuario1': 'clave2026'
-    };
+    // CAMBIA ESTA URL POR LA DE TU BACKEND EN RENDER CUANDO LO DESPLIEGUES
+    const BACKEND_URL = 'https://tu-proyecto.onrender.com';
 
     let codigosGeneradosMatriz = [];
     let metaDescarga = { inicial: '0000', final: '0000' };
@@ -162,17 +185,81 @@
       }
     };
 
-    function validarLogin(event) {
-      event.preventDefault();
-      const user = document.getElementById('userInput').value;
-      const pass = document.getElementById('passInput').value;
-      const errorMsg = document.getElementById('errorMessage');
+    function cambiarVistaAuth(vista) {
+      const formLogin = document.getElementById('formLogin');
+      const formRegister = document.getElementById('formRegister');
+      const tabLogin = document.getElementById('tabLogin');
+      const tabRegister = document.getElementById('tabRegister');
 
-      if (USUARIOS_PERMITIDOS[user] && USUARIOS_PERMITIDOS[user] === pass) {
-        sessionStorage.setItem('usuarioSesion', user);
-        errorMsg.classList.add('hidden');
-        mostrarApp(user);
+      if (vista === 'login') {
+        formLogin.classList.remove('hidden');
+        formRegister.classList.add('hidden');
+        tabLogin.className = "flex-1 text-center pb-2 font-bold text-blue-600 border-b-2 border-blue-600 text-sm";
+        tabRegister.className = "flex-1 text-center pb-2 font-semibold text-gray-400 text-sm";
       } else {
+        formLogin.classList.add('hidden');
+        formRegister.classList.remove('hidden');
+        tabRegister.className = "flex-1 text-center pb-2 font-bold text-emerald-600 border-b-2 border-emerald-600 text-sm";
+        tabLogin.className = "flex-1 text-center pb-2 font-semibold text-gray-400 text-sm";
+      }
+    }
+
+    // PETICIÓN DE LOGIN AL BACKEND
+    async function validarLogin(event) {
+      event.preventDefault();
+      const usuario = document.getElementById('userInput').value;
+      const password = document.getElementById('passInput').value;
+      const errorMsg = document.getElementById('errorLoginMessage');
+
+      try {
+        const respuesta = await fetch(`${BACKEND_URL}/api/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, password })
+        });
+
+        const data = await respuesta.json();
+
+        if (respuesta.ok) {
+          sessionStorage.setItem('usuarioSesion', data.usuario);
+          errorMsg.classList.add('hidden');
+          mostrarApp(data.usuario);
+        } else {
+          errorMsg.textContent = data.error || 'Usuario o contraseña incorrectos';
+          errorMsg.classList.remove('hidden');
+        }
+      } catch (error) {
+        errorMsg.textContent = 'No se pudo conectar con el servidor.';
+        errorMsg.classList.remove('hidden');
+      }
+    }
+
+    // PETICIÓN DE REGISTRO AL BACKEND
+    async function registrarUsuario(event) {
+      event.preventDefault();
+      const usuario = document.getElementById('regUser').value;
+      const password = document.getElementById('regPass').value;
+      const errorMsg = document.getElementById('errorRegisterMessage');
+
+      try {
+        const respuesta = await fetch(`${BACKEND_URL}/api/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, password })
+        });
+
+        const data = await respuesta.json();
+
+        if (respuesta.ok) {
+          alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+          document.getElementById('formRegister').reset();
+          cambiarVistaAuth('login');
+        } else {
+          errorMsg.textContent = data.error || 'Error al registrar el usuario.';
+          errorMsg.classList.remove('hidden');
+        }
+      } catch (error) {
+        errorMsg.textContent = 'No se pudo conectar con el servidor.';
         errorMsg.classList.remove('hidden');
       }
     }
@@ -202,7 +289,6 @@
     function validarEntradaPrefijo() {
       const tipoPrefijo = document.getElementById('tipoPrefijo').value;
       const prefijoInput = document.getElementById('prefijoTexto');
-
       if (tipoPrefijo === 'numerico') {
         prefijoInput.value = prefijoInput.value.replace(/[^0-9]/g, '');
       }
@@ -218,8 +304,6 @@
 
     function generarCodigos() {
       const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
-
-      // Validación para evitar generación sin datos
       if (cantidad <= 0) {
         alert('Por favor, ingresa una cantidad mayor a 0 para generar los códigos.');
         document.getElementById('resultado').value = '';
@@ -298,10 +382,8 @@
     function descargarTXT() {
       const contenido = document.getElementById('resultado').value;
       if (!contenido) return;
-
       const fecha = obtenerFechaFormateada();
       const nombreArchivo = `codigos_${metaDescarga.inicial}_a_${metaDescarga.final}_${fecha}.txt`;
-
       const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
@@ -311,14 +393,11 @@
 
     function descargarExcel() {
       if (codigosGeneradosMatriz.length === 0) return;
-
       const fecha = obtenerFechaFormateada();
       const nombreArchivo = `codigos_${metaDescarga.inicial}_a_${metaDescarga.final}_${fecha}.xlsx`;
-
       const hoja = XLSX.utils.json_to_sheet(codigosGeneradosMatriz);
       const libro = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(libro, hoja, "Códigos");
-
       XLSX.writeFile(libro, nombreArchivo);
     }
   </script>
