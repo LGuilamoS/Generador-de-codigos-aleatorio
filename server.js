@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 // CONEXIÓN A MONGODB ATLAS (Recuerda cambiar TU_CONTRASEÑA_REAL por la contraseña que creaste)
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://luigiguilamo_db_user:<db_password>@usserandpassword.ipytker.mongodb.net/?appName=UsserAndPassword';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://luigiguilamo_db_user:Password123@usserandpassword.ipytker.mongodb.net/?appName=UsserAndPassword';
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log('Conectado exitosamente a MongoDB Atlas'))
