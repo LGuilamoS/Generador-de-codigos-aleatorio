@@ -38,6 +38,11 @@
         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition duration-200">
           Entrar
         </button>
+        
+        <!-- BOTÓN DE MODO DEMO -->
+        <button type="button" onclick="entrarModoDemo()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-lg transition duration-200 text-xs mt-2">
+          Probar en Modo Demo (Invitado)
+        </button>
       </form>
 
       <!-- FORMULARIO DE REGISTRO -->
@@ -76,10 +81,15 @@
         <button onclick="cerrarSesion()" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded-lg border border-gray-300 transition">
           Cerrar Sesión
         </button>
-        <button onclick="eliminarCuenta()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg border border-red-200 transition">
+        <button id="btnEliminarCuenta" onclick="eliminarCuenta()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg border border-red-200 transition">
           Eliminar Cuenta
         </button>
       </div>
+    </div>
+
+    <!-- BANNER O AVISO DE MODO DEMO -->
+    <div id="bannerDemo" class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-800 hidden flex justify-between items-center">
+      <span>⚠️ <b>Estás en Modo Demo:</b> Tienes un límite de generación reducido a un máximo de 200 códigos por lote. ¡Regístrate para generar más!</span>
     </div>
 
     <!-- PANEL DE CONFIGURACIÓN Y RESULTADOS -->
@@ -184,8 +194,10 @@
 
     window.onload = function() {
       const usuarioActivo = sessionStorage.getItem('usuarioSesion');
+      const esDemo = sessionStorage.getItem('modoDemo');
+      
       if (usuarioActivo) {
-        mostrarApp(usuarioActivo);
+        mostrarApp(usuarioActivo, esDemo === 'true');
       }
     };
 
@@ -208,6 +220,12 @@
       }
     }
 
+    function entrarModoDemo() {
+      sessionStorage.setItem('usuarioSesion', 'Invitado (Demo)');
+      sessionStorage.setItem('modoDemo', 'true');
+      mostrarApp('Invitado (Demo)', true);
+    }
+
     // PETICIÓN DE LOGIN AL BACKEND
     async function validarLogin(event) {
       event.preventDefault();
@@ -226,8 +244,9 @@
 
         if (respuesta.ok) {
           sessionStorage.setItem('usuarioSesion', data.usuario);
+          sessionStorage.removeItem('modoDemo');
           errorMsg.classList.add('hidden');
-          mostrarApp(data.usuario);
+          mostrarApp(data.usuario, false);
         } else {
           errorMsg.textContent = data.error || 'Usuario o contraseña incorrectos';
           errorMsg.classList.remove('hidden');
@@ -296,15 +315,28 @@
       }
     }
 
-    function mostrarApp(usuario) {
+    function mostrarApp(usuario, esDemo) {
       document.getElementById('loginModal').classList.add('hidden');
       document.getElementById('appContent').classList.remove('hidden');
       document.getElementById('nombreUsuario').textContent = usuario;
+      
+      const bannerDemo = document.getElementById('bannerDemo');
+      const btnEliminar = document.getElementById('btnEliminarCuenta');
+
+      if (esDemo) {
+        bannerDemo.classList.remove('hidden');
+        btnEliminar.classList.add('hidden');
+      } else {
+        bannerDemo.classList.add('hidden');
+        btnEliminar.classList.remove('hidden');
+      }
+
       togglePrefijoInput();
     }
 
     function cerrarSesion() {
       sessionStorage.removeItem('usuarioSesion');
+      sessionStorage.removeItem('modoDemo');
       location.reload();
     }
 
@@ -336,11 +368,20 @@
 
     function generarCodigos() {
       const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
+      const esDemo = sessionStorage.getItem('modoDemo') === 'true';
+      const LIMITE_DEMO = 200; // Límite exclusivo para el Modo Demo
+
       if (cantidad <= 0) {
         alert('Por favor, ingresa una cantidad mayor a 0 para generar los códigos.');
         document.getElementById('resultado').value = '';
         document.getElementById('contadorResultados').textContent = '0';
         codigosGeneradosMatriz = [];
+        return;
+      }
+
+      // Restricción específica si está en Modo Demo
+      if (esDemo && cantidad > LIMITE_DEMO) {
+        alert(`⚠️ En el Modo Demo solo puedes generar hasta ${LIMITE_DEMO} códigos por lote. Por favor, regístrate para generar más.`);
         return;
       }
 
