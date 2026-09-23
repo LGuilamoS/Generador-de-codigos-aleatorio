@@ -66,15 +66,20 @@
   <!-- APLICACIÓN PRINCIPAL (OCULTA HASTA INICIAR SESIÓN) -->
   <div id="appContent" class="hidden p-4 md:p-8 max-w-4xl mx-auto space-y-6">
     
-    <!-- Encabezado con información del usuario -->
+    <!-- Encabezado con información del usuario y acciones de cuenta -->
     <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
       <div>
         <h1 class="text-xl md:text-2xl font-bold text-gray-800">Generador de Códigos</h1>
         <p class="text-xs text-gray-500">Bienvenido, <span id="nombreUsuario" class="font-semibold text-blue-600"></span></p>
       </div>
-      <button onclick="cerrarSesion()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg border border-red-200 transition">
-        Cerrar Sesión
-      </button>
+      <div class="flex space-x-2">
+        <button onclick="cerrarSesion()" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded-lg border border-gray-300 transition">
+          Cerrar Sesión
+        </button>
+        <button onclick="eliminarCuenta()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg border border-red-200 transition">
+          Eliminar Cuenta
+        </button>
+      </div>
     </div>
 
     <!-- PANEL DE CONFIGURACIÓN Y RESULTADOS -->
@@ -172,7 +177,6 @@
   </div>
 
   <script>
-    // CAMBIA ESTA URL POR LA DE TU BACKEND EN RENDER CUANDO LO DESPLIEGUES
     const BACKEND_URL = 'https://generador-de-codigos-aleatorio.onrender.com';
 
     let codigosGeneradosMatriz = [];
@@ -261,6 +265,34 @@
       } catch (error) {
         errorMsg.textContent = 'No se pudo conectar con el servidor.';
         errorMsg.classList.remove('hidden');
+      }
+    }
+
+    // PETICIÓN PARA ELIMINAR CUENTA DEL BACKEND
+    async function eliminarCuenta() {
+      const usuarioActual = sessionStorage.getItem('usuarioSesion');
+      if (!usuarioActual) return;
+
+      const confirmacion = confirm(`¿Estás seguro de que deseas eliminar permanentemente la cuenta de "${usuarioActual}"? Esta acción no se puede deshacer.`);
+      if (!confirmacion) return;
+
+      try {
+        const respuesta = await fetch(`${BACKEND_URL}/api/delete-account`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario: usuarioActual })
+        });
+
+        const data = await respuesta.json();
+
+        if (respuesta.ok) {
+          alert('Tu cuenta ha sido eliminada exitosamente.');
+          cerrarSesion();
+        } else {
+          alert(data.error || 'No se pudo eliminar la cuenta.');
+        }
+      } catch (error) {
+        alert('Error de conexión con el servidor al intentar eliminar la cuenta.');
       }
     }
 
