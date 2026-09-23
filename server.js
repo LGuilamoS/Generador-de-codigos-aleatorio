@@ -44,6 +44,26 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// NUEVA RUTA: Eliminar cuenta
+app.delete('/api/delete-account', (req, res) => {
+    try {
+        const { usuario } = req.body;
+        if (!usuario) {
+            return res.status(400).json({ error: 'No se especificó el usuario.' });
+        }
+
+        const index = usuariosDB.findIndex(u => u.usuario === usuario);
+        if (index !== -1) {
+            usuariosDB.splice(index, 1);
+            return res.json({ message: 'Cuenta eliminada correctamente.' });
+        }
+        
+        res.status(404).json({ error: 'Usuario no encontrado.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
