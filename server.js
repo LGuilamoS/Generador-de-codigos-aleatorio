@@ -145,8 +145,8 @@ app.post('/api/crear-sesion-pago', async (req, res) => {
             payment_method_types: ['card'],
             line_items: [{ price: priceId, quantity: 1 }],
             mode: 'subscription',
-            success_url: 'https://tu-usuario.github.io/tu-web/exito.html', // Modifica con tu URL final
-            cancel_url: 'https://tu-usuario.github.io/tu-web/cancelado.html', // Modifica con tu URL final
+            success_url: 'https://lguilamos.github.io/Generador-de-codigos-aleatorio/?pago=exitoso',
+            cancel_url: 'https://lguilamos.github.io/Generador-de-codigos-aleatorio/?pago=cancelado',
             metadata: { userId, tipoPlan }
         });
 
@@ -158,12 +158,10 @@ app.post('/api/crear-sesion-pago', async (req, res) => {
 
 // RUTA O WEBHOOK DE STRIPE: Aquí se procesa la activación de límites tras el pago exitoso
 app.post('/api/webhook-stripe', express.raw({type: 'application/json'}), async (req, res) => {
-    // Nota: Configura tu endpoint de Webhook de Stripe apuntando a esta ruta para producción
     const sig = req.headers['stripe-signature'];
     let event;
 
     try {
-        // En producción valida con tu webhook secret: stripe.webhooks.constructEvent(...)
         event = req.body; 
 
         if (event.type === 'checkout.session.completed') {
@@ -175,7 +173,7 @@ app.post('/api/webhook-stripe', express.raw({type: 'application/json'}), async (
                 await Usuario.findByIdAndUpdate(userId, {
                     subscription_status: 'active',
                     stripe_customer_id: session.customer,
-                    descargas_permitidas_mes: 10, // Límite Plan Estándar (Ej: 10 lotes)
+                    descargas_permitidas_mes: 10,
                     descargas_realizadas_mes: 0,
                     subscription_end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
                 });
@@ -183,7 +181,7 @@ app.post('/api/webhook-stripe', express.raw({type: 'application/json'}), async (
                 await Usuario.findByIdAndUpdate(userId, {
                     subscription_status: 'active',
                     stripe_customer_id: session.customer,
-                    descargas_permitidas_mes: 50, // Límite Plan Pro (Ej: 50 lotes)
+                    descargas_permitidas_mes: 50,
                     descargas_realizadas_mes: 0,
                     subscription_end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
                 });
@@ -191,7 +189,7 @@ app.post('/api/webhook-stripe', express.raw({type: 'application/json'}), async (
                 await Usuario.findByIdAndUpdate(userId, {
                     subscription_status: 'active',
                     stripe_customer_id: session.customer,
-                    descargas_permitidas_mes: 999999, // Ilimitado por 1 año ($199.99/año)
+                    descargas_permitidas_mes: 999999,
                     descargas_realizadas_mes: 0,
                     subscription_end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
                 });
