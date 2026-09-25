@@ -3,7 +3,7 @@
 <head>
   <meta charset="ANSI">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generador de Códigos con Login y Registro</title>
+  <title>Generador de Códigos con Lotes y Suscripción</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Librería SheetJS para exportar a Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -89,7 +89,27 @@
 
     <!-- BANNER O AVISO DE MODO DEMO -->
     <div id="bannerDemo" class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-800 hidden flex justify-between items-center">
-      <span>⚠️ <b>Estás en Modo Demo:</b> Tienes un límite de generación reducido a un máximo de 200 códigos por lote. ¡Regístrate para generar más!</span>
+      <span>?? <b>Estás en Modo Demo:</b> Tienes un límite de generación reducido a un máximo de 200 códigos en total. ¡Regístrate para generar más!</span>
+    </div>
+
+    <!-- APARTADO DE SUSCRIPCIÓN Y LOS 3 PLANES -->
+    <div id="panelSuscripcion" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-4 rounded-xl shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 hidden">
+      <div>
+        <h3 class="text-sm font-bold text-blue-900">Estado de Membresía / Suscripción</h3>
+        <p class="text-xs text-blue-700 mt-0.5">Estado actual: <span id="txtEstadoSuscripcion" class="font-semibold uppercase">Verificando...</span></p>
+        <p class="text-xs text-blue-600">Descargas disponibles: <span id="txtDescargasRestantes" class="font-bold">0</span></p>
+      </div>
+      <div id="contenedorBotonesPago" class="flex flex-wrap gap-2 justify-center">
+        <button onclick="iniciarPagoStripe('estandar')" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow transition">
+          Plan Estándar ($9.99/mes)
+        </button>
+        <button onclick="iniciarPagoStripe('pro')" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow transition">
+          Plan Pro ($19.99/mes)
+        </button>
+        <button onclick="iniciarPagoStripe('premium')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition">
+          ?? Plan Premium Anual ($199.99/año - Ilimitado)
+        </button>
+      </div>
     </div>
 
     <!-- PANEL DE CONFIGURACIÓN Y RESULTADOS -->
@@ -146,8 +166,14 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Cantidad a Generar</label>
-          <input type="number" id="cantidad" value="0" min="0" max="5000" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ingresa una cantidad...">
+          <label class="block text-xs font-medium text-gray-600 mb-1">Cantidad Total a Generar</label>
+          <input type="number" id="cantidad" value="0" min="0" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ej: 12000">
+        </div>
+
+        <!-- APARTADO: Cantidad de códigos por archivo -->
+        <div>
+          <label class="block text-xs font-medium text-blue-700 font-bold mb-1">Cantidad de Códigos por Archivo (Lote)</label>
+          <input type="number" id="cantidadPorArchivo" value="5000" min="1" class="w-full p-2 border border-blue-300 bg-blue-50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ej: 5000">
         </div>
 
         <div>
@@ -159,28 +185,43 @@
         </div>
 
         <button onclick="generarCodigos()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition duration-200">
-          Generar Códigos
+          Generar Códigos por Lotes
         </button>
       </div>
 
-      <!-- Resultados -->
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 lg:col-span-2 flex flex-col">
-        <div class="flex justify-between items-center border-b pb-2 mb-4">
-          <h2 class="text-lg font-semibold text-gray-700">Resultados (<span id="contadorResultados">0</span>)</h2>
-          <div class="flex space-x-2">
+      <!-- Resultados y Lotes -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 lg:col-span-2 flex flex-col space-y-4">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-2 gap-2">
+          <h2 class="text-lg font-semibold text-gray-700">Resultados Totales (<span id="contadorResultados">0</span>)</h2>
+          <div class="flex flex-wrap gap-2">
             <button onclick="copiarAlPortapapeles()" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded border">
-              Copiar
+              Copiar Todo
             </button>
-            <button onclick="descargarTXT()" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded border">
-              TXT
-            </button>
-            <button onclick="descargarExcel()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded transition">
-              Descargar Excel
+            <button onclick="descargarExcelResumenLotes()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded transition">
+              ?? Excel Resumen (Lotes y Folios)
             </button>
           </div>
         </div>
 
-        <textarea id="resultado" readonly class="w-full flex-grow p-3 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm resize-none min-h-[300px]" placeholder="Introduce la cantidad de códigos deseada y haz clic en 'Generar Códigos'..."></textarea>
+        <textarea id="resultado" readonly class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm resize-none h-[180px]" placeholder="Introduce los datos y haz clic en 'Generar Códigos por Lotes'..."></textarea>
+
+        <!-- Contenedor dinámico de lotes generados con descargas masivas -->
+        <div class="border-t pt-3 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold text-gray-700">Archivos / Lotes Divididos Automáticamente:</h3>
+            <div class="space-x-1">
+              <button onclick="descargarTodosTXT()" class="px-2.5 py-1 bg-gray-700 hover:bg-gray-800 text-white text-xs font-medium rounded transition">
+                ?? Descargar Todos (TXT)
+              </button>
+              <button onclick="descargarTodosExcel()" class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium rounded transition">
+                ?? Descargar Todos (Excel)
+              </button>
+            </div>
+          </div>
+          <div id="contenedorLotes" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+            <p class="text-xs text-gray-400 italic">Aún no se han generado lotes.</p>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -189,8 +230,9 @@
   <script>
     const BACKEND_URL = 'https://generador-de-codigos-aleatorio.onrender.com';
 
-    let codigosGeneradosMatriz = [];
-    let metaDescarga = { inicial: '0000', final: '0000' };
+    let lotesGenerados = []; 
+    let resumenLotesParaExcel = []; 
+    let datosUsuarioActual = null;
 
     window.onload = function() {
       const usuarioActivo = sessionStorage.getItem('usuarioSesion');
@@ -226,7 +268,6 @@
       mostrarApp('Invitado (Demo)', true);
     }
 
-    // PETICIÓN DE LOGIN AL BACKEND
     async function validarLogin(event) {
       event.preventDefault();
       const usuario = document.getElementById('userInput').value;
@@ -239,14 +280,14 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ usuario, password })
         });
-
         const data = await respuesta.json();
-
         if (respuesta.ok) {
           sessionStorage.setItem('usuarioSesion', data.usuario);
+          sessionStorage.setItem('userId', data.userId || '');
           sessionStorage.removeItem('modoDemo');
           errorMsg.classList.add('hidden');
           mostrarApp(data.usuario, false);
+          consultarEstadoSuscripcion(data.userId);
         } else {
           errorMsg.textContent = data.error || 'Usuario o contraseña incorrectos';
           errorMsg.classList.remove('hidden');
@@ -257,7 +298,6 @@
       }
     }
 
-    // PETICIÓN DE REGISTRO AL BACKEND
     async function registrarUsuario(event) {
       event.preventDefault();
       const usuario = document.getElementById('regUser').value;
@@ -270,9 +310,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ usuario, password })
         });
-
         const data = await respuesta.json();
-
         if (respuesta.ok) {
           alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
           document.getElementById('formRegister').reset();
@@ -283,16 +321,15 @@
         }
       } catch (error) {
         errorMsg.textContent = 'No se pudo conectar con el servidor.';
-        errorMsg.classList.remove('hidden');
+        errorMsg.classList.add('hidden');
       }
     }
 
-    // PETICIÓN PARA ELIMINAR CUENTA DEL BACKEND
     async function eliminarCuenta() {
       const usuarioActual = sessionStorage.getItem('usuarioSesion');
       if (!usuarioActual) return;
 
-      const confirmacion = confirm(`¿Estás seguro de que deseas eliminar permanentemente la cuenta de "${usuarioActual}"? Esta acción no se puede deshacer.`);
+      const confirmacion = confirm(`¿Estás seguro de que deseas eliminar permanentemente la cuenta de "${usuarioActual}"?`);
       if (!confirmacion) return;
 
       try {
@@ -301,9 +338,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ usuario: usuarioActual })
         });
-
         const data = await respuesta.json();
-
         if (respuesta.ok) {
           alert('Tu cuenta ha sido eliminada exitosamente.');
           cerrarSesion();
@@ -311,7 +346,7 @@
           alert(data.error || 'No se pudo eliminar la cuenta.');
         }
       } catch (error) {
-        alert('Error de conexión con el servidor al intentar eliminar la cuenta.');
+        alert('Error de conexión con el servidor.');
       }
     }
 
@@ -322,20 +357,76 @@
       
       const bannerDemo = document.getElementById('bannerDemo');
       const btnEliminar = document.getElementById('btnEliminarCuenta');
+      const panelSuscripcion = document.getElementById('panelSuscripcion');
 
       if (esDemo) {
         bannerDemo.classList.remove('hidden');
         btnEliminar.classList.add('hidden');
+        panelSuscripcion.classList.add('hidden');
       } else {
         bannerDemo.classList.add('hidden');
         btnEliminar.classList.remove('hidden');
+        panelSuscripcion.classList.remove('hidden');
+        
+        const userId = sessionStorage.getItem('userId');
+        if (userId) consultarEstadoSuscripcion(userId);
       }
 
       togglePrefijoInput();
     }
 
+    async function consultarEstadoSuscripcion(userId) {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/usuario/${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          datosUsuarioActual = data;
+          
+          const txtEstado = document.getElementById('txtEstadoSuscripcion');
+          const txtDescargas = document.getElementById('txtDescargasRestantes');
+          const contenedorBotones = document.getElementById('contenedorBotonesPago');
+
+          if (data.is_lifetime_premium || data.role === 'admin') {
+            txtEstado.textContent = 'VIP / Administrador Permanente';
+            txtDescargas.textContent = 'Ilimitadas';
+            contenedorBotones.classList.add('hidden');
+          } else if (data.subscription_status === 'active') {
+            txtEstado.textContent = 'Activa';
+            txtDescargas.textContent = (data.descargas_permitidas_mes - data.descargas_realizadas_mes);
+            contenedorBotones.classList.add('hidden');
+          } else {
+            txtEstado.textContent = 'Inactiva / Sin Suscripción';
+            txtDescargas.textContent = '0';
+            contenedorBotones.classList.remove('hidden');
+          }
+        }
+      } catch (e) {
+        console.error("No se pudo consultar el estado de la suscripción", e);
+      }
+    }
+
+    async function iniciarPagoStripe(tipoPlan) {
+      const userId = sessionStorage.getItem('userId');
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/crear-sesion-pago`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, tipoPlan })
+        });
+        const data = await response.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert('Error al iniciar la pasarela de pagos.');
+        }
+      } catch (error) {
+        alert('Error conectando con el servidor de pagos.');
+      }
+    }
+
     function cerrarSesion() {
       sessionStorage.removeItem('usuarioSesion');
+      sessionStorage.removeItem('userId');
       sessionStorage.removeItem('modoDemo');
       location.reload();
     }
@@ -367,21 +458,23 @@
     }
 
     function generarCodigos() {
-      const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
+      const cantidadTotal = parseInt(document.getElementById('cantidad').value) || 0;
+      const porArchivo = parseInt(document.getElementById('cantidadPorArchivo').value) || 5000;
       const esDemo = sessionStorage.getItem('modoDemo') === 'true';
-      const LIMITE_DEMO = 200; // Límite exclusivo para el Modo Demo
+      const LIMITE_DEMO = 200;
 
-      if (cantidad <= 0) {
-        alert('Por favor, ingresa una cantidad mayor a 0 para generar los códigos.');
-        document.getElementById('resultado').value = '';
-        document.getElementById('contadorResultados').textContent = '0';
-        codigosGeneradosMatriz = [];
+      if (cantidadTotal <= 0) {
+        alert('Por favor, ingresa una cantidad total mayor a 0.');
         return;
       }
 
-      // Restricción específica si está en Modo Demo
-      if (esDemo && cantidad > LIMITE_DEMO) {
-        alert(`⚠️ En el Modo Demo solo puedes generar hasta ${LIMITE_DEMO} códigos por lote. Por favor, regístrate para generar más.`);
+      if (esDemo && cantidadTotal > LIMITE_DEMO) {
+        alert(`?? En Modo Demo solo puedes generar hasta ${LIMITE_DEMO} códigos en total.`);
+        return;
+      }
+
+      if (porArchivo <= 0) {
+        alert('La cantidad de códigos por archivo debe ser mayor a 0.');
         return;
       }
 
@@ -400,14 +493,11 @@
       const posicion = document.getElementById('posicionSecuencia').value;
 
       const caracteres = '0123456789';
-      const resultados = [];
-      codigosGeneradosMatriz = [];
+      let todosLosResultados = [];
+      lotesGenerados = [];
+      resumenLotesParaExcel = [];
 
-      const secuenciaInicialFormateada = inicio.toString().padStart(padding, '0');
-      const secuenciaFinalFormateada = (inicio + cantidad - 1).toString().padStart(padding, '0');
-      metaDescarga = { inicial: secuenciaInicialFormateada, final: secuenciaFinalFormateada };
-
-      for (let i = 0; i < cantidad; i++) {
+      for (let i = 0; i < cantidadTotal; i++) {
         let parteAleatoria = '';
         for (let j = 0; j < longitud; j++) {
           parteAleatoria += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
@@ -427,9 +517,7 @@
           codigoFinal = `${numeroSecuencia}${separador}${bloqueConPrefijo}`;
         }
 
-        resultados.push(codigoFinal);
-
-        codigosGeneradosMatriz.push({
+        todosLosResultados.push({
           "N°": i + 1,
           "Código Completo": codigoFinal,
           "Secuencia": numeroSecuencia,
@@ -440,23 +528,70 @@
         });
       }
 
-      document.getElementById('resultado').value = resultados.join('\n');
-      document.getElementById('contadorResultados').textContent = resultados.length;
+      // ESTRUCTURA CON COLUMNAS SEPARADAS PARA EL EXCEL RESUMEN
+      let numeroLote = 1;
+      for (let i = 0; i < todosLosResultados.length; i += porArchivo) {
+        const fragmento = todosLosResultados.slice(i, i + porArchivo);
+        const folioInicial = fragmento[0]["Secuencia"];
+        const folioFinal = fragmento[fragmento.length - 1]["Secuencia"];
+
+        resumenLotesParaExcel.push({
+          "Número de Lote": `Lote #${numeroLote}`,
+          "Folio Inicial": folioInicial,
+          "Folio Final": folioFinal,
+          "Cantidad de Códigos": fragmento.length
+        });
+
+        lotesGenerados.push({
+          idLote: numeroLote,
+          folioInicial: folioInicial,
+          folioFinal: folioFinal,
+          datos: fragmento
+        });
+        numeroLote++;
+      }
+
+      document.getElementById('resultado').value = todosLosResultados.map(item => item["Código Completo"]).join('\n');
+      document.getElementById('contadorResultados').textContent = todosLosResultados.length;
+
+      renderizarSeccionLotes();
     }
 
-    function copiarAlPortapapeles() {
-      const resultadoText = document.getElementById('resultado');
-      if (!resultadoText.value) return;
-      resultadoText.select();
-      navigator.clipboard.writeText(resultadoText.value);
-      alert('¡Códigos copiados!');
+    function renderizarSeccionLotes() {
+      const contenedor = document.getElementById('contenedorLotes');
+      contenedor.innerHTML = '';
+
+      lotesGenerados.forEach((lote) => {
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs";
+        
+        div.innerHTML = `
+          <div>
+            <span class="font-bold text-gray-800">Lote #${lote.idLote}:</span> 
+            <span class="text-blue-600 font-semibold">${lote.folioInicial} - ${lote.folioFinal}</span>
+            <span class="text-gray-500 block sm:inline">(${lote.datos.length} códigos)</span>
+          </div>
+          <div class="space-x-1">
+            <button onclick="descargarLoteTXT(${lote.idLote})" class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded transition">
+              TXT
+            </button>
+            <button onclick="descargarLoteExcel(${lote.idLote})" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded transition">
+              Excel
+            </button>
+          </div>
+        `;
+        contenedor.appendChild(div);
+      });
     }
 
-    function descargarTXT() {
-      const contenido = document.getElementById('resultado').value;
-      if (!contenido) return;
+    function descargarLoteTXT(idLote) {
+      const lote = lotesGenerados.find(l => l.idLote === idLote);
+      if (!lote) return;
+
+      const contenido = lote.datos.map(item => item["Código Completo"]).join('\n');
       const fecha = obtenerFechaFormateada();
-      const nombreArchivo = `codigos_${metaDescarga.inicial}_a_${metaDescarga.final}_${fecha}.txt`;
+      const nombreArchivo = `lote_${lote.idLote}_(${lote.folioInicial}_a_${lote.folioFinal})_${fecha}.txt`;
+      
       const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
@@ -464,14 +599,64 @@
       link.click();
     }
 
-    function descargarExcel() {
-      if (codigosGeneradosMatriz.length === 0) return;
+    function descargarLoteExcel(idLote) {
+      const lote = lotesGenerados.find(l => l.idLote === idLote);
+      if (!lote) return;
+
       const fecha = obtenerFechaFormateada();
-      const nombreArchivo = `codigos_${metaDescarga.inicial}_a_${metaDescarga.final}_${fecha}.xlsx`;
-      const hoja = XLSX.utils.json_to_sheet(codigosGeneradosMatriz);
+      const nombreArchivo = `lote_${lote.idLote}_(${lote.folioInicial}_a_${lote.folioFinal})_${fecha}.xlsx`;
+      
+      const hoja = XLSX.utils.json_to_sheet(lote.datos);
       const libro = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(libro, hoja, "Códigos");
+      XLSX.utils.book_append_sheet(libro, hoja, `Lote ${lote.idLote}`);
       XLSX.writeFile(libro, nombreArchivo);
+    }
+
+    // EXCEL CON COLUMNAS SEPARADAS: Número de Lote | Folio Inicial | Folio Final | Cantidad
+    function descargarExcelResumenLotes() {
+      if (resumenLotesParaExcel.length === 0) {
+        alert('No hay lotes generados para exportar.');
+        return;
+      }
+      const fecha = obtenerFechaFormateada();
+      const nombreArchivo = `resumen_lotes_columnas_${fecha}.xlsx`;
+
+      const hoja = XLSX.utils.json_to_sheet(resumenLotesParaExcel);
+      const libro = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(libro, hoja, "Resumen Lotes");
+      XLSX.writeFile(libro, nombreArchivo);
+    }
+
+    function descargarTodosTXT() {
+      if (lotesGenerados.length === 0) {
+        alert('No hay lotes generados para descargar.');
+        return;
+      }
+      lotesGenerados.forEach((lote, index) => {
+        setTimeout(() => {
+          descargarLoteTXT(lote.idLote);
+        }, index * 300);
+      });
+    }
+
+    function descargarTodosExcel() {
+      if (lotesGenerados.length === 0) {
+        alert('No hay lotes generados para descargar.');
+        return;
+      }
+      lotesGenerados.forEach((lote, index) => {
+        setTimeout(() => {
+          descargarLoteExcel(lote.idLote);
+        }, index * 300);
+      });
+    }
+
+    function copiarAlPortapapeles() {
+      const resultadoText = document.getElementById('resultado');
+      if (!resultadoText.value) return;
+      resultadoText.select();
+      navigator.clipboard.writeText(resultadoText.value);
+      alert('¡Todos los códigos copiados al portapapeles!');
     }
   </script>
 </body>
