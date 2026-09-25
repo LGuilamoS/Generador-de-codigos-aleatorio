@@ -1,6 +1,7 @@
 {
-  "name": "generador-backend",
+  "name": "generador-codigos-backend",
   "version": "1.0.0",
+  "description": "Backend para generador de códigos con lotes y suscripciones",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -9,6 +10,10 @@
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "mongoose": "^8.3.0"
+    "mongoose": "^8.3.1",
+    "stripe": "^15.6.0"
+  },
+  "engines": {
+    "node": ">=18.x"
   }
 }
