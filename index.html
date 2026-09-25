@@ -87,27 +87,27 @@
       </div>
     </div>
 
-    <!-- BANNER O AVISO DE MODO DEMO -->
-    <div id="bannerDemo" class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-800 hidden flex justify-between items-center">
-      <span>Advertencia: Estas en Modo Demo. Tienes un límite de generación reducido a un máximo de 200 códigos en total. ¡Registrate para generar más!</span>
+    <!-- BANNER O AVISO DE RESTRICCIÓN PARA USUARIOS SIN MEMBRESÍA -->
+    <div id="bannerRestriccion" class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-800 hidden flex justify-between items-center">
+      <span>⚠️ <b>Cuenta sin Suscripción Activa:</b> Solo puedes generar un máximo de 200 códigos de prueba y no tienes permitido descargar ni copiar los archivos hasta activar un plan.</span>
     </div>
 
     <!-- APARTADO DE SUSCRIPCIÓN Y LOS 3 PLANES -->
     <div id="panelSuscripcion" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-4 rounded-xl shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 hidden">
       <div>
-        <h3 class="text-sm font-bold text-blue-900">Estado de Membresia / Suscripción</h3>
+        <h3 class="text-sm font-bold text-blue-900">Estado de Membresía / Suscripción</h3>
         <p class="text-xs text-blue-700 mt-0.5">Estado actual: <span id="txtEstadoSuscripcion" class="font-semibold uppercase">Verificando...</span></p>
         <p class="text-xs text-blue-600">Descargas disponibles: <span id="txtDescargasRestantes" class="font-bold">0</span></p>
       </div>
       <div id="contenedorBotonesPago" class="flex flex-wrap gap-2 justify-center">
         <button onclick="iniciarPagoStripe('estandar')" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow transition">
-          Plan Estandar ($9.99/mes)
+          Plan Estándar ($9.99/mes)
         </button>
         <button onclick="iniciarPagoStripe('pro')" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow transition">
           Plan Pro ($19.99/mes)
         </button>
         <button onclick="iniciarPagoStripe('premium')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition">
-          Plan Premium Anual ($199.99/ano - Ilimitado)
+          Plan Premium Anual ($199.99/año - Ilimitado)
         </button>
       </div>
     </div>
@@ -122,7 +122,7 @@
         <div>
           <label class="block text-xs font-medium text-gray-600 mb-1">Modo de Generación</label>
           <select id="modoGeneracion" onchange="togglePrefijoInput()" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none font-semibold">
-            <option value="sin_prefijo">Sin Prefijo (Solo Numeros Aleatorios)</option>
+            <option value="sin_prefijo">Sin Prefijo (Solo Números Aleatorios)</option>
             <option value="con_prefijo">Con Prefijo Personalizado</option>
           </select>
         </div>
@@ -131,8 +131,8 @@
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">Tipo de Prefijo</label>
             <select id="tipoPrefijo" onchange="validarEntradaPrefijo()" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
-              <option value="alfanumerico">Alfanumérico (Letras y Numeros)</option>
-              <option value="numerico">Numerico (Solo Numeros)</option>
+              <option value="alfanumerico">Alfanumérico (Letras y Números)</option>
+              <option value="numerico">Numérico (Solo Números)</option>
             </select>
           </div>
           <div>
@@ -142,16 +142,16 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Inicio de Secuencia (Numero)</label>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Inicio de Secuencia (Número)</label>
           <input type="number" id="secuenciaInicio" value="1" min="0" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Relleno de Secuencia (Digitos)</label>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Relleno de Secuencia (Dígitos)</label>
           <select id="paddingSecuencia" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
             <option value="1">Sin ceros (1, 2...)</option>
-            <option value="4" selected>4 digitos (0001...)</option>
-            <option value="6">6 digitos (000001...)</option>
+            <option value="4" selected>4 dígitos (0001...)</option>
+            <option value="6">6 dígitos (000001...)</option>
           </select>
         </div>
 
@@ -161,7 +161,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Digitos Aleatorios (Solo Numeros)</label>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Dígitos Aleatorios (Solo Números)</label>
           <input type="number" id="longitudAleatoria" value="6" min="2" max="32" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
         </div>
 
@@ -172,12 +172,12 @@
 
         <!-- APARTADO: Cantidad de códigos por archivo -->
         <div>
-          <label class="block text-xs font-medium text-blue-700 font-bold mb-1">Cantidad de Codigos por Archivo (Lote)</label>
+          <label class="block text-xs font-medium text-blue-700 font-bold mb-1">Cantidad de Códigos por Archivo (Lote)</label>
           <input type="number" id="cantidadPorArchivo" value="5000" min="1" class="w-full p-2 border border-blue-300 bg-blue-50 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ej: 5000">
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Posicion de la Secuencia</label>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Posición de la Secuencia</label>
           <select id="posicionSecuencia" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
             <option value="al_final">Al Final (PREFIJO+ALEATORIO - SECUENCIA)</option>
             <option value="al_inicio">Al Inicio (SECUENCIA - PREFIJO+ALEATORIO)</option>
@@ -185,7 +185,7 @@
         </div>
 
         <button onclick="generarCodigos()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition duration-200">
-          Generar Codigos por Lotes
+          Generar Códigos por Lotes
         </button>
       </div>
 
@@ -198,7 +198,6 @@
               Copiar Todo
             </button>
             <button onclick="descargarExcelResumenLotes()" class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded transition">
-              <!-- Ícono de Descarga SVG Limpio -->
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
@@ -207,12 +206,12 @@
           </div>
         </div>
 
-        <textarea id="resultado" readonly class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm resize-none h-[180px]" placeholder="Introduce los datos y haz clic en 'Generar Codigos por Lotes'..."></textarea>
+        <textarea id="resultado" readonly class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm resize-none h-[180px]" placeholder="Introduce los datos y haz clic en 'Generar Códigos por Lotes'..."></textarea>
 
         <!-- Contenedor dinámico de lotes generados con descargas masivas -->
         <div class="border-t pt-3 space-y-3">
           <div class="flex justify-between items-center">
-            <h3 class="text-sm font-bold text-gray-700">Archivos / Lotes Divididos Automaticamente:</h3>
+            <h3 class="text-sm font-bold text-gray-700">Archivos / Lotes Divididos Automáticamente:</h3>
             <div class="space-x-1">
               <button onclick="descargarTodosTXT()" class="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-700 hover:bg-gray-800 text-white text-xs font-medium rounded transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -229,7 +228,7 @@
             </div>
           </div>
           <div id="contenedorLotes" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-            <p class="text-xs text-gray-400 italic">Aun no se han generado lotes.</p>
+            <p class="text-xs text-gray-400 italic">Aún no se han generado lotes.</p>
           </div>
         </div>
       </div>
@@ -243,6 +242,7 @@
     let lotesGenerados = []; 
     let resumenLotesParaExcel = []; 
     let datosUsuarioActual = null;
+    let tieneAccesoCompleto = false; // Bandera para controlar permisos de descarga
 
     window.onload = function() {
       const usuarioActivo = sessionStorage.getItem('usuarioSesion');
@@ -275,6 +275,7 @@
     function entrarModoDemo() {
       sessionStorage.setItem('usuarioSesion', 'Invitado (Demo)');
       sessionStorage.setItem('modoDemo', 'true');
+      tieneAccesoCompleto = false;
       mostrarApp('Invitado (Demo)', true);
     }
 
@@ -304,7 +305,7 @@
         }
       } catch (error) {
         errorMsg.textContent = 'No se pudo conectar con el servidor.';
-        errorMsg.classList.remove('hidden');
+        errorMsg.classList.add('hidden');
       }
     }
 
@@ -365,16 +366,16 @@
       document.getElementById('appContent').classList.remove('hidden');
       document.getElementById('nombreUsuario').textContent = usuario;
       
-      const bannerDemo = document.getElementById('bannerDemo');
+      const bannerRestriccion = document.getElementById('bannerRestriccion');
       const btnEliminar = document.getElementById('btnEliminarCuenta');
       const panelSuscripcion = document.getElementById('panelSuscripcion');
 
       if (esDemo) {
-        bannerDemo.classList.remove('hidden');
+        bannerRestriccion.classList.remove('hidden');
         btnEliminar.classList.add('hidden');
         panelSuscripcion.classList.add('hidden');
+        tieneAccesoCompleto = false;
       } else {
-        bannerDemo.classList.add('hidden');
         btnEliminar.classList.remove('hidden');
         panelSuscripcion.classList.remove('hidden');
         
@@ -395,19 +396,26 @@
           const txtEstado = document.getElementById('txtEstadoSuscripcion');
           const txtDescargas = document.getElementById('txtDescargasRestantes');
           const contenedorBotones = document.getElementById('contenedorBotonesPago');
+          const bannerRestriccion = document.getElementById('bannerRestriccion');
 
           if (data.is_lifetime_premium || data.role === 'admin') {
             txtEstado.textContent = 'VIP / Administrador Permanente';
             txtDescargas.textContent = 'Ilimitadas';
             contenedorBotones.classList.add('hidden');
+            bannerRestriccion.classList.add('hidden');
+            tieneAccesoCompleto = true; // Permite descargas y copias ilimitadas
           } else if (data.subscription_status === 'active') {
             txtEstado.textContent = 'Activa';
             txtDescargas.textContent = (data.descargas_permitidas_mes - data.descargas_realizadas_mes);
             contenedorBotones.classList.add('hidden');
+            bannerRestriccion.classList.add('hidden');
+            tieneAccesoCompleto = true; // Permite descargas
           } else {
             txtEstado.textContent = 'Inactiva / Sin Suscripción';
             txtDescargas.textContent = '0';
             contenedorBotones.classList.remove('hidden');
+            bannerRestriccion.classList.remove('hidden');
+            tieneAccesoCompleto = false; // Sin suscripción: bloqueado para descargas/copias
           }
         }
       } catch (e) {
@@ -470,16 +478,16 @@
     function generarCodigos() {
       const cantidadTotal = parseInt(document.getElementById('cantidad').value) || 0;
       const porArchivo = parseInt(document.getElementById('cantidadPorArchivo').value) || 5000;
-      const esDemo = sessionStorage.getItem('modoDemo') === 'true';
-      const LIMITE_DEMO = 200;
+      const esDemoOrInactivo = !tieneAccesoCompleto;
+      const LIMITE_RESTRINGIDO = 200;
 
       if (cantidadTotal <= 0) {
         alert('Por favor, ingresa una cantidad total mayor a 0.');
         return;
       }
 
-      if (esDemo && cantidadTotal > LIMITE_DEMO) {
-        alert(`⚠️ En Modo Demo solo puedes generar hasta ${LIMITE_DEMO} códigos en total.`);
+      if (esDemoOrInactivo && cantidadTotal > LIMITE_RESTRINGIDO) {
+        alert(`⚠️ Tu cuenta no tiene una suscripción activa. Solo puedes generar hasta ${LIMITE_RESTRINGIDO} códigos en total. ¡Activa un plan para generar más!`);
         return;
       }
 
@@ -601,6 +609,11 @@
     }
 
     function descargarLoteTXT(idLote) {
+      if (!tieneAccesoCompleto) {
+        alert('🔒 Descarga bloqueada: Tu cuenta no tiene una suscripción activa. Elige un plan (Estándar, Pro o Premium) para descargar o copiar los códigos.');
+        return;
+      }
+
       const lote = lotesGenerados.find(l => l.idLote === idLote);
       if (!lote) return;
 
@@ -616,6 +629,11 @@
     }
 
     function descargarLoteExcel(idLote) {
+      if (!tieneAccesoCompleto) {
+        alert('🔒 Descarga bloqueada: Tu cuenta no tiene una suscripción activa. Elige un plan (Estándar, Pro o Premium) para descargar o copiar los códigos.');
+        return;
+      }
+
       const lote = lotesGenerados.find(l => l.idLote === idLote);
       if (!lote) return;
 
@@ -630,6 +648,11 @@
 
     // EXCEL CON COLUMNAS SEPARADAS: Número de Lote | Folio Inicial | Folio Final | Cantidad
     function descargarExcelResumenLotes() {
+      if (!tieneAccesoCompleto) {
+        alert('🔒 Descarga bloqueada: Tu cuenta no tiene una suscripción activa. Elige un plan (Estándar, Pro o Premium) para descargar o copiar los códigos.');
+        return;
+      }
+
       if (resumenLotesParaExcel.length === 0) {
         alert('No hay lotes generados para exportar.');
         return;
@@ -644,6 +667,11 @@
     }
 
     function descargarTodosTXT() {
+      if (!tieneAccesoCompleto) {
+        alert('🔒 Descarga bloqueada: Tu cuenta no tiene una suscripción activa. Elige un plan (Estándar, Pro o Premium) para descargar o copiar los códigos.');
+        return;
+      }
+
       if (lotesGenerados.length === 0) {
         alert('No hay lotes generados para descargar.');
         return;
@@ -656,6 +684,11 @@
     }
 
     function descargarTodosExcel() {
+      if (!tieneAccesoCompleto) {
+        alert('🔒 Descarga bloqueada: Tu cuenta no tiene una suscripción activa. Elige un plan (Estándar, Pro o Premium) para descargar o copiar los códigos.');
+        return;
+      }
+
       if (lotesGenerados.length === 0) {
         alert('No hay lotes generados para descargar.');
         return;
@@ -668,6 +701,11 @@
     }
 
     function copiarAlPortapapeles() {
+      if (!tieneAccesoCompleto) {
+        alert('🔒 Acción bloqueada: Tu cuenta no tiene una suscripción activa. Elige un plan (Estándar, Pro o Premium) para descargar o copiar los códigos.');
+        return;
+      }
+
       const resultadoText = document.getElementById('resultado');
       if (!resultadoText.value) return;
       resultadoText.select();
